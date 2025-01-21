@@ -24,7 +24,23 @@ export const COLORS = {
 } as const;
 
 export const ENGINEERED_PROMPT_DEFAULT =
-  'Generate a packing list for my trip to <DESTINATION>. I will be arriving on <ARRIVAL> and staying for <DURATION> days.';
+`
+You are a travel assistant creating a lean packing list for a trip to <DESTINATION> from <ARRIVAL> for <DURATION> days. 
+Based on weather forecasts and general travel needs for a woman, generate a packing list organized into categories. 
+Limit each category to the necessary # of items with a maximum of 7 items. 
+Optional items should be marked with an asterisk. 
+Focus on essentials but feel free to include recommendations.
 
+Example output structure:
+{
+  "Location Info": ["During your stay the weather is typically ..."],
+  "Clothing": ["# Tops", "# Bottoms", "# Underwear", "# Activewear"],
+  "Toiletries": ["Hairbrush", "Toothbrush", "Toothpaste", "Skincare products (Moisturizer, Sunscreen, Body Lotion)"],
+  "Electronics": ["Smartphone", "Chargers", "Portable Power Bank*"],
+  "Travel Documents": ["Passport", "Travel itinerary", "Ticket Info (Virtual or Printed)", "Photocopy of Sensitive Documents"]
+}
+
+Return the packing list as key-value pairs with appropriate categories.
+`
 export const ERROR_CONTEXT_DEFAULT =
   'Got an error when trying to parse your response:';

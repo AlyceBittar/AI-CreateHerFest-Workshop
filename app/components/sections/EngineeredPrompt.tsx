@@ -21,7 +21,7 @@ export default function EngineeredPrompt({
   return (
     <div className="p-6 bg-gray-900 rounded-md text-center">
       <textarea
-        className="w-full text-gray-200 bg-transparent border-none focus:outline-none resize-none min-h-[100px]"
+        className="w-full h-full text-gray-200 bg-transparent border-none focus:outline-none resize-none min-h-[500px]"
         value={
           !isActive
             ? engineeredPrompt
@@ -37,8 +37,8 @@ export default function EngineeredPrompt({
       />
       {isActive && errorFeedback && errorContext && (
         <div>
-          <p className="text-white">{errorContext}</p>
-          <p className="text-red-500">{errorFeedback}</p>
+          {/* <p className="text-red-500 text-bold">{errorContext}</p> */}
+          <p className="text-red-500">Error Feedback: {errorFeedback}</p>
         </div>
       )}
     </div>

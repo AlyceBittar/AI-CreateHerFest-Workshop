@@ -13,6 +13,6 @@ export interface UserInputState {
 }
 
 export interface StructuredOutputState {
-  list: Array<string>;
+  list: Record<string, string[]>;
   errorText: string;
 }

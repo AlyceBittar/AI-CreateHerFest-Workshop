@@ -37,10 +37,11 @@ export default function Home() {
     ERROR_CONTEXT_DEFAULT
   );
   const [maxAttempts, setMaxAttempts] = useState<number>(3);
+  const [numberOfAttempts, setNumberOfAttempts] = useState<number>(1);
   const [validationUpdateText, setValidationUpdateText] = useState<string>('');
   const [structuredOutput, setStructuredOutput] =
     useState<StructuredOutputState>({
-      list: [],
+      list: {},
       errorText: '',
     });
   const [modelOutput, setModelOutput] = useState<string>('');
@@ -64,6 +65,7 @@ export default function Home() {
       let attempt = 1;
       while (attempt <= maxAttempts) {
         // If the model is not valid, try again.
+        setNumberOfAttempts(attempt)
         setActiveSection(Section.AiModelVisualization);
         const content = await promptModel(craftPromptWithErrorContext(prompt));
         setModelOutput(content);
@@ -86,7 +88,7 @@ export default function Home() {
         // If the model is not valid after maxAttempts, throw an error.
         if (attempt === maxAttempts) {
           setStructuredOutput({
-            list: [],
+            list: {},
             errorText: 'Something went wrong. Please try again.',
           });
         }
@@ -118,7 +120,7 @@ export default function Home() {
   };
 
   const resetState = () => {
-    setStructuredOutput({ list: [], errorText: '' });
+    setStructuredOutput({ list: {}, errorText: '' });
     setErrorFeedback('');
     setActiveSection(Section.UserInput);
     setModelOutput('');
@@ -127,41 +129,45 @@ export default function Home() {
   const parseAndValidateOutput = async (
     content: string
   ): Promise<{
-    parsedOutput?: Array<string>;
+    parsedOutput?: Record<string, string[]>;
     isValid: boolean;
     error: string;
   }> => {
-    let parsedOutput: Array<string> = [];
-
-    // Update the validation update text.
+    let parsedOutput: Record<string, string[]> = {};
     setValidationUpdateText('Parsing and validating output...');
     await new Promise((resolve) => setTimeout(resolve, STAGE_WAIT_TIME));
-
-    // Parse as an array:
-    setValidationUpdateText('Checking if output is an array...');
-    await new Promise((resolve) => setTimeout(resolve, STAGE_WAIT_TIME));
+  
     try {
-      parsedOutput = JSON.parse(content);
-      if (!Array.isArray(parsedOutput)) {
-        return { isValid: false, error: 'Output is not an array' };
+      const parsedContent = JSON.parse(content); // Assuming the input is a valid JSON string
+      const categories = Object.keys(parsedContent);
+  
+      if (categories.length === 0) {
+        return { isValid: false, error: 'Output is empty or not formatted correctly' };
       }
-      // Validate the array contains only strings:
-      setValidationUpdateText('Checking if all elements are strings...');
-      await new Promise((resolve) => setTimeout(resolve, STAGE_WAIT_TIME));
-
-      const containsOnlyStrings = parsedOutput.every(
-        (item) => typeof item === 'string'
-      );
-      if (!containsOnlyStrings) {
-        return { isValid: false, error: 'Output is not an array of strings' };
+  
+      // Check each category and validate items
+      for (const category of categories) {
+        const items = parsedContent[category];
+  
+        if (!Array.isArray(items)) {
+          return { isValid: false, error: `Category ${category} has invalid item format` };
+        }
+  
+        const validItems = items.every((item: string) => typeof item === 'string' && item.trim().length > 0);
+  
+        if (!validItems) {
+          return { isValid: false, error: `One or more items in ${category} are invalid` };
+        }
+  
+        parsedOutput[category] = items;
       }
-    } catch {
-      return { isValid: false, error: 'Output is not a valid JSON array' };
+  
+      return { isValid: true, error: '', parsedOutput };
+    } catch (err) {
+      return { isValid: false, error: 'Output is not valid JSON' };
     }
-
-    return { isValid: true, error: '', parsedOutput: parsedOutput };
-  };
-
+  };  
+  
   return (
     <div className="flex flex-1 gap-6 min-h-0 h-full w-full">
       {/* Column 1 */}
@@ -183,6 +189,7 @@ export default function Home() {
           <StructuredOutput
             structuredOutput={structuredOutput}
             isActive={activeSection === Section.StructuredOutput}
+            destination={userInput.destination}
           />
         </Box>
       </Column>
@@ -213,6 +220,7 @@ export default function Home() {
             validationUpdateText={validationUpdateText}
             maxAttempts={maxAttempts}
             setMaxAttempts={setMaxAttempts}
+            numberOfAttempts={numberOfAttempts}
             setErrorContext={setErrorContext}
             errorContext={errorContext}
           />
