@@ -12,8 +12,8 @@ export default function ParsingAndValidation({
   setMaxAttempts,
   numberOfAttempts,
   validationUpdateText,
-  errorContext,
-  setErrorContext,
+  // errorContext,
+  // setErrorContext,
 }: ParsingAndValidationProps) {
   return (
     <div className="p-6 bg-gray-900 rounded-md text-center">

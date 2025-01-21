@@ -133,7 +133,7 @@ export default function Home() {
     isValid: boolean;
     error: string;
   }> => {
-    let parsedOutput: Record<string, string[]> = {};
+    const parsedOutput: Record<string, string[]> = {};
     setValidationUpdateText('Parsing and validating output...');
     await new Promise((resolve) => setTimeout(resolve, STAGE_WAIT_TIME));
   
@@ -164,7 +164,7 @@ export default function Home() {
   
       return { isValid: true, error: '', parsedOutput };
     } catch (err) {
-      return { isValid: false, error: 'Output is not valid JSON' };
+      return { isValid: false, error: `Output is not in the expectied key-value pairs format: ${err}` };
     }
   };  
   
